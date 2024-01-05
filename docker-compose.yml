@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+  docker_wordpress_app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: docker_wordpress_app
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www/html
+    volumes:
+      - ./app:/var/www/html
+      - ./docker/app.conf:/etc/apache2/sites-enabled/000-default.conf
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: docker_wordpress_db
+      DB_PORT: 3306
+      DB_DATABASE: wordpress_db
+      DB_USERNAME: wordpress_db
+      DB_PASSWORD: wordpress_db
+    ports:
+      - 8000:80
+    networks:
+      - docker_wordpress_network
+
+  # Uses port 3306
+  docker_wordpress_db:
+    image: mysql:8.0
+    container_name: docker_wordpress_db
+    restart: unless-stopped
+    tty: true
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress_db
+      MYSQL_PASSWORD: wordpress_db
+    volumes:
+      - docker_wordpress_db_data:/var/lib/mysql/
+    networks:
+      - docker_wordpress_network
+
+  docker_wordpress_pma:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: docker_wordpress_pma
+    ports:
+      - 4444:80
+    environment:
+      PMA_HOST: docker_wordpress_db
+      PMA_USER: wordpress_db
+      PMA_PASSWORD: wordpress_db
+    depends_on:
+      - docker_wordpress_db
+    networks:
+      - docker_wordpress_network
+
+networks:
+  docker_wordpress_network:
+    driver: bridge
+
+volumes:
+  docker_wordpress_db_data:
+    driver: local
