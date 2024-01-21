@@ -1,6 +1,6 @@
 # docker-wordpress
 
-With ```docker``` and ```docker compose``` installed, cd into the ```docker-wordpress``` directory and run the following steps:
+With ```docker``` and ```docker-compose``` installed, cd into the ```docker-wordpress``` directory and run the following steps:
 
 ### Step 1 - Install wp-config.php
 
