@@ -1,25 +1,30 @@
 # docker-wordpress
 
-### Installation script
+With ```docker``` and ```docker compose``` installed, cd into the ```docker-wordpress``` directory and run the following steps:
 
-cd into the ```docker-wordpress``` directory, and run:
+### Step 1 - Install wp-config.php
 
 ```
 docker run --rm \
 --workdir /home/workspace \
 --mount type=bind,source=$(pwd),target=/home/workspace \
-alpine:latest \
-/bin/sh -c \
-"rm -rf ./wordpress \
-&& rm -rf ./app \
-&& rm -rf ./app.tar.gz \
-&& wget https://en-ca.wordpress.org/latest-en_CA.tar.gz -O app.tar.gz \
-&& tar -xvzf ./app.tar.gz \
-&& rm -rf ./app.tar.gz \
-&& mv ./wordpress ./app"
+python:3 \
+/bin/bash -c "pip install requests && python3 ./docker/wp-config-install.py"
 ```
 
+### Step 2 - Download and install WordPress
+
 ```
-python3 -c \
-"import re, requests; response = requests.get('https://api.wordpress.org/secret-key/1.1/salt/').text.strip(); content = open('/home/workspace/wp-config-no-salt.php').read(); updated_content = re.sub('INSERT-SALT-HERE', response, content); open('/home/workspace/wp-config.php', 'w').write(updated_content)"
+chmod 777 ./docker/wp-install.sh && \
+docker run --rm \
+--workdir /home/workspace \
+--mount type=bind,source=$(pwd),target=/home/workspace \
+alpine:latest \
+/bin/sh -c "./docker/wp-install.sh"
+```
+
+### Step 3 - Run your WordPress website
+
+```
+docker-compose up -d
 ```
